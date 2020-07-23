@@ -1,0 +1,14 @@
+{
+  "name": "osm-data-converter",
+  "version": "0.0.6",
+  "description": "Data converter for OSM data, converts from SHP files to JSON and CSV. Made for Project Trains.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "kalucky0",
+  "license": "CC BY-SA 4.0",
+  "dependencies": {
+    "shp": "0.0.1"
+  }
+}
