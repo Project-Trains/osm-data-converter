@@ -2,7 +2,7 @@
 Data converter for OSM SHP files. Converts from SHP, DBF and PRJ files to JSON and CSV. Made for Project Trains.
 
 ### Contributing
-Thanks for thinking of contributing to this project. smile
+Thanks for thinking of contributing to this project.
 
 Before sending a Pull Request, please make sure that you're assigned the task on a GitHub issue.
 

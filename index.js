@@ -17,26 +17,32 @@ function shpToJson(input, chunks = true) {
     let all = [];
     for (let i = 0; i < json.length; i += 1) {
         let properties = {};
-        for (let key in json[i].properties) {
-            properties[key] = parseInt(json[i].properties[key].replace(/^[ ]+|[ ]+$/g, ""));
-            if (isNaN(properties[key])) {
-                properties[key] = json[i].properties[key].replace(/^[ ]+|[ ]+$/g, "")
-            }
-            if (properties[key] === "") {
-                properties[key] = null
-            }
-        }
-        for (let j = 0; j < json[i].geometry; j += 1) {
-            for (let k = 0; k < json[i].geometry[j]; k += 1) {
+        properties.id = parseInt(json[i].properties.osm_id);
+        if (json[i].properties.name != "")
+            properties.name = json[i].properties.name.replace(/^[ ]+|[ ]+$/g, "");
+        properties.obj = json[i].properties.fclass.replace(/^[ ]+|[ ]+$/g, "");
+        properties.type = json[i].properties.type.replace(/^[ ]+|[ ]+$/g, "");
+
+        delete json[i].properties;
+
+        properties.geo = {};
+        properties.geo.type = json[i].geometry.type;
+        properties.geo.coords = [];
+        for (let j = 0; j < json[i].geometry.coordinates.length; j += 1) {
+            properties.geo.coords[j] = [];
+            for (let k = 0; k < json[i].geometry.coordinates[j].length; k += 1) {
+                properties.geo.coords[j][k] = [];
                 // Poland geometric center - [52.114339, 19.423672]
-                properties.geometry[j][k][0] = calculateDistance(0, 19.42, 0, properties.geometry[j][k][0]);
-                properties.geometry[j][k][1] = calculateDistance(52.11, 0, properties.geometry[j][k][1], 0);
+                properties.geo.coords[j][k][0] = parseFloat(calculateDistance(0, 19.42, 0, json[i].geometry.coordinates[j][k][0]).toFixed(2));
+                properties.geo.coords[j][k][1] = parseFloat(calculateDistance(52.11, 0, json[i].geometry.coordinates[j][k][1], 0).toFixed(2));
             }
         }
+        json[i] = null;
         all.push(properties);
+
         if (chunks) {
-            if (i % 10000 === 0 && i > 1) {
-                j += 1;
+            if (i % 200000 === 0 && i > 1) {
+                j++;
                 fs.writeFileSync("output/json/data" + j + ".json", JSON.stringify(all));
                 console.log("File: ", j);
                 all = []
@@ -50,12 +56,12 @@ function shpToJson(input, chunks = true) {
 
 function calculateDistance(lat1, lon1, lat2, lon2) {
     const R = 6378.137;
-    const dLat = lat2 * Math.PI / 180 - lat1 * Math.PI / 180;
-    const dLon = lon2 * Math.PI / 180 - lon1 * Math.PI / 180;
-    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const dLat = (lat2 * Math.PI) / 180 - (lat1 * Math.PI) / 180;
+    const dLon = (lon2 * Math.PI) / 180 - (lon1 * Math.PI) / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const d = R * c;
-    return d * 1000;
+    return d * 1000
 }
 
 function validateLength(input) {
